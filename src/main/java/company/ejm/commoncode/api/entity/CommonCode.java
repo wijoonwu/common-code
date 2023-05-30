@@ -26,4 +26,8 @@ public class CommonCode {
         this.name = reqCodeDto.getName();
         this.codeGroup = reqCodeDto.getGroupDto().toEntity();
     }
+
+    public void setCodeGroup(CodeGroup codeGroup) {
+        this.codeGroup = codeGroup;
+    }
 }
