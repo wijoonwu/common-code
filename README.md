@@ -142,17 +142,12 @@ gradlew bootRun
 #### Response
 
 ```bash
-{
-    "code": 200,
-    "message": "Group codes retrieval successful.",
-    "data": []
-}
 ```
 
 ### 특정 공통 코드 조회
 
 - Method: `GET`
-- Url: http://localhost:8080/api/common-codes/{id}
+- Url: http://localhost:8080/api/common-codes/{codeId}
 
 #### Response
 
