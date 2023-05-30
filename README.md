@@ -222,7 +222,11 @@ gradlew bootRun
 #### Response
 
 ```bash
-
+{
+    "code": 200,
+    "message": "Codes deletion in group successful.",
+    "data": null
+}
 ```
 
 
