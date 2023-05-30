@@ -5,7 +5,7 @@ import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 
-@ToString @Getter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -17,13 +17,12 @@ public class CommonCodeDto {
     @NotBlank
     private String name;
     @NotBlank
-    private CodeGroupDto groupDto;
+    private String groupName;
 
     public CommonCode toEntity(){
         return CommonCode.builder()
                 .code(this.code)
                 .name(this.name)
-                .codeGroup(this.groupDto.toEntity())
                 .build();
     }
 
@@ -31,6 +30,6 @@ public class CommonCodeDto {
         this.id = commonCode.getId();
         this.code = commonCode.getCode();
         this.name = commonCode.getName();
-        this.groupDto = new CodeGroupDto(commonCode.getCodeGroup());
+        this.groupName = commonCode.getCodeGroup().getName();
     }
 }
