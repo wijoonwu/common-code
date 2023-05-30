@@ -13,10 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,35 +26,22 @@ public class CommonCodeService {
     private final CodeGroupRepository codeGroupRepository;
 
     public CommonCodeDto createCode(CommonCodeDto reqCodeDto) {
-        validateGroupName(reqCodeDto.getGroupName());
+        CodeGroup codeGroup = getCodeGroup(reqCodeDto.getGroupName());
 
-        Optional<CodeGroup> codeGroupOptional = codeGroupRepository.findByName(reqCodeDto.getGroupName());
-        if (codeGroupOptional.isPresent()) {
-            CodeGroup codeGroup = codeGroupOptional.get();
+        checkIfCodeExists(reqCodeDto.getCode(), codeGroup.getName());
 
-            List<CommonCode> commonCodeList = commonCodeRepository.findByCodeGroupName(codeGroup.getName());
-            for (CommonCode commonCode : commonCodeList) {
-                if (commonCode.getCode().equals(reqCodeDto.getCode())) {
-                    throw new CustomException(ErrorCode.CODE_ALREADY_EXIST);
-                }
-            }
+        CommonCode commonCode = CommonCode.builder()
+                .code(reqCodeDto.getCode())
+                .name(reqCodeDto.getName())
+                .codeGroup(codeGroup)
+                .build();
 
-            CommonCode commonCode = CommonCode.builder()
-                    .code(reqCodeDto.getCode())
-                    .name(reqCodeDto.getName())
-                    .codeGroup(codeGroup)
-                    .build();
-
-            commonCodeRepository.save(commonCode);
-            return new CommonCodeDto(commonCode);
-        } else {
-            throw new CustomException(ErrorCode.GROUP_NOT_FOUND);
-        }
+        commonCodeRepository.save(commonCode);
+        return new CommonCodeDto(commonCode);
     }
 
-
     public CodeGroupDto createGroup(CodeGroupDto reqCodeDto) {
-        validateDuplicateGroupName(reqCodeDto.getName());
+        checkDuplicateGroupName(reqCodeDto.getName());
         CodeGroup codeGroup = reqCodeDto.toEntity();
         codeGroupRepository.save(codeGroup);
         return new CodeGroupDto(codeGroup);
@@ -64,65 +49,79 @@ public class CommonCodeService {
 
     @Transactional(readOnly = true)
     public List<CodeGroupDto> getCodeGroups() {
-        List<CodeGroup> codeGroupList = codeGroupRepository.findAll();
-        List<CodeGroupDto> codeGroupDtoList = new ArrayList<>();
-        for(CodeGroup codeGroup : codeGroupList){
-            codeGroupDtoList.add(new CodeGroupDto(codeGroup));
-        }
-        return codeGroupDtoList;
+        return codeGroupRepository.findAll().stream()
+                .map(CodeGroupDto::new)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public CommonCodeDto getCodeById(long id) {
-        Optional<CommonCode> commonCode = commonCodeRepository.findById(id);
-        return commonCode.map(CommonCodeDto::new).orElse(null);
+        CommonCode commonCode = commonCodeRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.CODE_NOT_FOUND));
+        return new CommonCodeDto(commonCode);
     }
 
     @Transactional(readOnly = true)
     public List<CommonCodeDto> getCodesByGroupName(String groupName) {
         List<CommonCode> commonCodeList = commonCodeRepository.findByCodeGroupName(groupName);
-        List<CommonCodeDto> commonCodeDtoList = new ArrayList<>();
-        for(CommonCode commonCode : commonCodeList){
-            commonCodeDtoList.add(new CommonCodeDto(commonCode));
+
+        if (commonCodeList.isEmpty()){
+            throw new CustomException(ErrorCode.GROUP_NOT_FOUND);
         }
-        return commonCodeDtoList;
+
+        return commonCodeList.stream()
+                .map(CommonCodeDto::new)
+                .collect(Collectors.toList());
     }
 
     public CodeGroupDto updateGroupName(long groupId, String groupName) {
-        Optional<CodeGroup> codeGroup = codeGroupRepository.findById(groupId);
-        if(codeGroup.isPresent()){
-            codeGroup.get().updateName(groupName);
-            //todo 변경된 값으로 return 되는지 테스트
-            return new CodeGroupDto(codeGroup.get());
-        }
-        throw new CustomException(ErrorCode.GROUP_NOT_FOUND);
+        CodeGroup codeGroup = codeGroupRepository.findById(groupId)
+                .orElseThrow(() -> new CustomException(ErrorCode.GROUP_NOT_FOUND));
+        codeGroup.updateName(groupName);
+        return new CodeGroupDto(codeGroup);
     }
 
     public CommonCodeDto updateCode(long id, CommonCodeDto reqCodeDto) {
         validateGroupName(reqCodeDto.getGroupName());
-        Optional<CommonCode> commonCode = commonCodeRepository.findById(id);
-        if(commonCode.isPresent()){
-            Optional<CodeGroup> codeGroup = codeGroupRepository.findByName(reqCodeDto.getGroupName());
-            if(codeGroup.isPresent()){
-                commonCode.get().update(reqCodeDto, codeGroup.get());
-                return new CommonCodeDto(commonCode.get());
-            } else {
-                throw new CustomException(ErrorCode.GROUP_NOT_FOUND);
-            }
-        } else {
-            throw new CustomException(ErrorCode.CODE_NOT_FOUND);
-        }
+
+        CommonCode commonCode = commonCodeRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.CODE_NOT_FOUND));
+
+        CodeGroup codeGroup = getCodeGroup(reqCodeDto.getGroupName());
+        commonCode.update(reqCodeDto, codeGroup);
+        return new CommonCodeDto(commonCode);
     }
 
-
-
     public void deleteCodesInGroup(long groupId) {
-        Optional<CodeGroup> codeGroup = codeGroupRepository.findById(groupId);
-        codeGroup.ifPresent(group -> commonCodeRepository.deleteAllByCodeGroupId(group.getId()));
+        CodeGroup codeGroup = codeGroupRepository.findById(groupId)
+                .orElseThrow(() -> new CustomException(ErrorCode.GROUP_NOT_FOUND));
+        commonCodeRepository.deleteAllByCodeGroupId(codeGroup.getId());
     }
 
     public void deleteCode(long id) {
         commonCodeRepository.deleteById(id);
+    }
+
+    private CodeGroup getCodeGroup(String groupName) {
+        validateGroupName(groupName);
+
+        return codeGroupRepository.findByName(groupName)
+                .orElseThrow(() -> new CustomException(ErrorCode.GROUP_NOT_FOUND));
+    }
+
+    private void checkIfCodeExists(String code, String groupName) {
+        boolean codeExists = commonCodeRepository.findByCodeGroupName(groupName).stream()
+                .anyMatch(commonCode -> commonCode.getCode().equals(code));
+
+        if (codeExists) {
+            throw new CustomException(ErrorCode.CODE_ALREADY_EXIST);
+        }
+    }
+
+    private void checkDuplicateGroupName(String groupName) {
+        if (codeGroupRepository.existsByName(groupName)) {
+            throw new CustomException(ErrorCode.GROUP_NAME_ALREADY_EXIST);
+        }
     }
 
     private void validateGroupName(String groupName) {
@@ -130,20 +129,4 @@ public class CommonCodeService {
             throw new CustomException(ErrorCode.GROUP_NOT_FOUND);
         }
     }
-
-    private void validateDuplicateCode(CommonCodeDto reqCodeDto) {
-        if (commonCodeRepository.existsByCode(reqCodeDto.getCode())) {
-            throw new CustomException(ErrorCode.CODE_ALREADY_EXIST);
-        }
-        if (commonCodeRepository.existsByName(reqCodeDto.getName())) {
-            throw new CustomException(ErrorCode.CODE_ALREADY_EXIST);
-        }
-    }
-
-    private void validateDuplicateGroupName(String groupName) {
-        if (codeGroupRepository.existsByName(groupName)) {
-            throw new CustomException(ErrorCode.GROUP_NAME_ALREADY_EXIST);
-        }
-    }
-
 }
