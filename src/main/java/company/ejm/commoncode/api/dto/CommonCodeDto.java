@@ -3,6 +3,8 @@ package company.ejm.commoncode.api.dto;
 import company.ejm.commoncode.api.entity.CommonCode;
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
+
 @ToString @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -10,8 +12,11 @@ import lombok.*;
 public class CommonCodeDto {
 
     private long id;
+    @NotBlank
     private String code;
+    @NotBlank
     private String name;
+    @NotBlank
     private CodeGroupDto groupDto;
 
     public CommonCode toEntity(){

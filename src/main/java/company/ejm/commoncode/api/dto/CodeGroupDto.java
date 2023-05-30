@@ -4,6 +4,7 @@ import company.ejm.commoncode.api.entity.CodeGroup;
 import company.ejm.commoncode.api.entity.CommonCode;
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,8 +16,9 @@ import java.util.stream.Collectors;
 @Builder
 public class CodeGroupDto {
     private long id;
+    @NotBlank
     private String name;
-    private List<CommonCodeDto> commonCodeDtoList;
+    private List<CommonCodeDto> commonCodeList;
 
     public CodeGroup toEntity() {
         return CodeGroup.builder()
@@ -28,8 +30,13 @@ public class CodeGroupDto {
     public CodeGroupDto(CodeGroup codeGroup) {
         this.id = codeGroup.getId();
         this.name = codeGroup.getName();
-        this.commonCodeDtoList = codeGroup.getCommonCodeList().stream()
-                .map(CommonCodeDto::new)
-                .collect(Collectors.toList());
+        if (codeGroup.getCommonCodeList() != null) {
+            this.commonCodeList = codeGroup.getCommonCodeList().stream()
+                    .map(CommonCodeDto::new)
+                    .collect(Collectors.toList());
+        } else {
+            this.commonCodeList = new ArrayList<>();
+        }
     }
+
 }
