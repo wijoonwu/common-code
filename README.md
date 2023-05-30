@@ -7,8 +7,8 @@
 
 
 ## 개발환경
-- Java `11`
-- Gradle `7`
+- JDK `11`
+- Gradle `7.6.1`
 - Spring-boot `2.7.12`
 - H2 Database
 
@@ -61,7 +61,7 @@ gradlew bootRun
 }
 ```
 
-#### 💡 그룹 이름 중복 체크
+### 💡 그룹 이름 중복 체크
 
 > 중복된 group name 이 있는 경우 아래와 같이 409 응답 코드와 함께 오류 메시지가 전달 됩니다.
 
@@ -74,7 +74,7 @@ gradlew bootRun
 }
 ```
 
-#### 💡 공백 입력 불가
+### 💡 공백 입력 불가
 
 > 제목 혹은 내용이 `""`, `" "`와 같이 공란이거나 `null`인 경우 게시글 작성이 불가하며 `400` 오류가 발생합니다.
 
@@ -96,16 +96,35 @@ gradlew bootRun
 
 ```bash
 {
-    "code": "3001",
-    "name": "사용자 인증 실패",
-    "group" : "group1"
+  "code": "3005",
+  "name": "데이터 검증 오류",
+  "groupName": "group1"
 }
 ```
 
 #### Response
 
 ```bash
+{
+    "code": 201,
+    "message": "Code creation successful.",
+    "data": {
+        "id": 2,
+        "code": "3005",
+        "name": "데이터 검증 오류",
+        "groupName": "group1"
+    }
+}
+```
 
+### 💡 존재하지 않는 그룹을 지정했을 때
+
+#### Response
+```bash
+{
+    "status": 400,
+    "message": "존재하지 않는 그룹입니다."
+}
 ```
 
 ### 코드 그룹 조회
@@ -123,10 +142,17 @@ gradlew bootRun
         {
             "id": 1,
             "name": "group1",
-            "commonCodeList": []
+            "commonCodeList": [
+                {
+                    "id": 2,
+                    "code": "3005",
+                    "name": "데이터 검증 오류",
+                    "groupName": "group1"
+                }
+            ]
         },
         {
-            "id": 2,
+            "id": 3,
             "name": "group2",
             "commonCodeList": []
         }
@@ -142,6 +168,24 @@ gradlew bootRun
 #### Response
 
 ```bash
+{
+    "code": 200,
+    "message": "Group codes retrieval successful.",
+    "data": [
+        {
+            "id": 2,
+            "code": "3005",
+            "name": "데이터 검증 오류",
+            "groupName": "testGroup"
+        },
+        {
+            "id": 4,
+            "code": "3006",
+            "name": "사용자 인증 실패",
+            "groupName": "testGroup"
+        }
+    ]
+}
 ```
 
 ### 특정 공통 코드 조회
@@ -152,7 +196,16 @@ gradlew bootRun
 #### Response
 
 ```bash
-
+{
+    "code": 200,
+    "message": "Code retrieval successful.",
+    "data": {
+        "id": 2,
+        "code": "3005",
+        "name": "데이터 검증 오류",
+        "groupName": "group1"
+    }
+}
 ```
 
 ### 코드 그룹 이름 수정
@@ -163,7 +216,7 @@ gradlew bootRun
 
 ```bash
 {
-    "name" : "group1"
+    "name" : "testGroup"
 }
 ```
 
@@ -175,8 +228,15 @@ gradlew bootRun
     "message": "Group name update successful.",
     "data": {
         "id": 1,
-        "name": "group1",
-        "commonCodeList": []
+        "name": "testGroup",
+        "commonCodeList": [
+            {
+                "id": 2,
+                "code": "3005",
+                "name": "데이터 검증 오류",
+                "groupName": "testGroup"
+            }
+        ]
     }
 }
 ```
@@ -190,12 +250,25 @@ gradlew bootRun
 #### Request
 
 ```bash
-
+{
+    "code" : "3006",
+    "name" : "데이터 검증 실패",
+    "groupName" : "group2"
+}
 ```
 #### Response
 
 ```bash
-
+{
+    "code": 200,
+    "message": "Code update successful.",
+    "data": {
+        "id": 2,
+        "code": "3006",
+        "name": "데이터 검증 실패",
+        "groupName": "group2"
+    }
+}
 ```
 
 ### 공통 코드 삭제
@@ -206,7 +279,11 @@ gradlew bootRun
 #### Response
 
 ```bash
-
+{
+    "code": 200,
+    "message": "Code deletion successful.",
+    "data": null
+}
 ```
 
 ### 코드 그룹 삭제
@@ -232,6 +309,15 @@ gradlew bootRun
 #### Response
 
 ```bash
-
+{
+    "status": 400,
+    "message": "존재하지 않는 코드입니다."
+}
+```
+```bash
+{
+    "status": 400,
+    "message": "존재하지 않는 그룹입니다."
+}
 ```
 
