@@ -28,9 +28,9 @@ public class CommonCodeService {
     private final CodeGroupRepository codeGroupRepository;
 
     public CommonCodeDto createCode(CommonCodeDto reqCodeDto) {
-        validateGroupName(reqCodeDto.getGroupDto().getName());
+        validateGroupName(reqCodeDto.getGroupName());
 
-        Optional<CodeGroup> codeGroupOptional = codeGroupRepository.findByName(reqCodeDto.getGroupDto().getName());
+        Optional<CodeGroup> codeGroupOptional = codeGroupRepository.findByName(reqCodeDto.getGroupName());
         if (codeGroupOptional.isPresent()) {
             CodeGroup codeGroup = codeGroupOptional.get();
 
@@ -41,14 +41,19 @@ public class CommonCodeService {
                 }
             }
 
-            CommonCode commonCode = reqCodeDto.toEntity();
-            commonCode.setCodeGroup(codeGroup);
+            CommonCode commonCode = CommonCode.builder()
+                    .code(reqCodeDto.getCode())
+                    .name(reqCodeDto.getName())
+                    .codeGroup(codeGroup)
+                    .build();
+
             commonCodeRepository.save(commonCode);
             return new CommonCodeDto(commonCode);
         } else {
             throw new CustomException(ErrorCode.GROUP_NOT_FOUND);
         }
     }
+
 
     public CodeGroupDto createGroup(CodeGroupDto reqCodeDto) {
         validateDuplicateGroupName(reqCodeDto.getName());
@@ -94,14 +99,21 @@ public class CommonCodeService {
     }
 
     public CommonCodeDto updateCode(long id, CommonCodeDto reqCodeDto) {
-        validateGroupName(reqCodeDto.getGroupDto().getName());
+        validateGroupName(reqCodeDto.getGroupName());
         Optional<CommonCode> commonCode = commonCodeRepository.findById(id);
         if(commonCode.isPresent()){
-            commonCode.get().update(reqCodeDto);
-            return new CommonCodeDto(commonCode.get());
+            Optional<CodeGroup> codeGroup = codeGroupRepository.findByName(reqCodeDto.getGroupName());
+            if(codeGroup.isPresent()){
+                commonCode.get().update(reqCodeDto, codeGroup.get());
+                return new CommonCodeDto(commonCode.get());
+            } else {
+                throw new CustomException(ErrorCode.GROUP_NOT_FOUND);
+            }
+        } else {
+            throw new CustomException(ErrorCode.CODE_NOT_FOUND);
         }
-        throw new CustomException(ErrorCode.CODE_NOT_FOUND);
     }
+
 
 
     public void deleteCodesInGroup(long groupId) {
