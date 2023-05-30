@@ -1,6 +1,7 @@
 package company.ejm.commoncode.api.properties;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 public enum StatusEnum {
@@ -17,4 +18,9 @@ public enum StatusEnum {
         this.statusCode = statusCode;
         this.code = code;
     }
+
+    public HttpStatus getHttpStatus() {
+        return HttpStatus.valueOf(this.statusCode);
+    }
+
 }
