@@ -8,13 +8,13 @@ import company.ejm.commoncode.api.properties.Message;
 import company.ejm.commoncode.api.properties.StatusEnum;
 import company.ejm.commoncode.api.service.CommonCodeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+
 @RequestMapping("/api/common-codes")
 @RequiredArgsConstructor
 @RestController
@@ -37,19 +37,19 @@ public class CommonCodeController {
     }
 
     @GetMapping("/{codeId}")
-    public ResponseEntity<Message> getCode(@PathVariable long codeId){
+    public ResponseEntity<Message> getCode(@PathVariable long codeId) {
         CommonCodeDto commonCodeDto = commonCodeService.getCodeById(codeId);
         return createResponseEntity(StatusEnum.OK, "Code retrieval successful.", commonCodeDto);
     }
 
     @GetMapping("/group/{groupName}")
-    public ResponseEntity<Message> getCodesByGroup(@PathVariable String groupName){
+    public ResponseEntity<Message> getCodesByGroup(@PathVariable String groupName) {
         List<CommonCodeDto> commonCodeDtoList = commonCodeService.getCodesByGroupName(groupName);
         return createResponseEntity(StatusEnum.OK, "Group codes retrieval successful.", commonCodeDtoList);
     }
 
     @GetMapping("/groups")
-    public ResponseEntity<Message> getGroups(){
+    public ResponseEntity<Message> getGroups() {
         List<CodeGroupDto> codeGroupDtoList = commonCodeService.getCodeGroups();
         return createResponseEntity(StatusEnum.OK, "Group retrieval successful.", codeGroupDtoList);
     }
@@ -79,7 +79,7 @@ public class CommonCodeController {
     }
 
     private void checkEmpty(Errors errors) {
-        if(errors.hasErrors()){
+        if (errors.hasErrors()) {
             throw new CustomException(ErrorCode.CANNOT_BE_EMPTY);
         }
     }
