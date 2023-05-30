@@ -1,5 +1,8 @@
 package company.ejm.commoncode.api.properties;
 
+import lombok.Getter;
+
+@Getter
 public enum StatusEnum {
     CREATED(201, "CREATED"),
     OK(200, "OK"),
