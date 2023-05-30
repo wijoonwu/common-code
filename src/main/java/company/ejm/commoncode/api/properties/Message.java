@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class Message {
-        private StatusEnum status;
+        private int code;
         private String message;
         private Object data;
 }
