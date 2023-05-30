@@ -4,6 +4,8 @@ import company.ejm.commoncode.api.dto.CodeGroupDto;
 import company.ejm.commoncode.api.dto.CommonCodeDto;
 import company.ejm.commoncode.api.entity.CodeGroup;
 import company.ejm.commoncode.api.entity.CommonCode;
+import company.ejm.commoncode.api.exception.CustomException;
+import company.ejm.commoncode.api.properties.ErrorCode;
 import company.ejm.commoncode.api.repository.CodeGroupRepository;
 import company.ejm.commoncode.api.repository.CommonCodeRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,16 +29,30 @@ public class CommonCodeService {
 
     public CommonCodeDto createCode(CommonCodeDto reqCodeDto) {
         validateGroupName(reqCodeDto.getGroupDto().getName());
-        validateDuplicateCode(reqCodeDto);
-        CommonCode commonCode = reqCodeDto.toEntity();
-        commonCodeRepository.save(commonCode);
-        return new CommonCodeDto(commonCode);
+
+        Optional<CodeGroup> codeGroupOptional = codeGroupRepository.findByName(reqCodeDto.getGroupDto().getName());
+        if (codeGroupOptional.isPresent()) {
+            CodeGroup codeGroup = codeGroupOptional.get();
+
+            List<CommonCode> commonCodeList = commonCodeRepository.findByCodeGroupName(codeGroup.getName());
+            for (CommonCode commonCode : commonCodeList) {
+                if (commonCode.getCode().equals(reqCodeDto.getCode())) {
+                    throw new CustomException(ErrorCode.CODE_ALREADY_EXIST);
+                }
+            }
+
+            CommonCode commonCode = reqCodeDto.toEntity();
+            commonCode.setCodeGroup(codeGroup);
+            commonCodeRepository.save(commonCode);
+            return new CommonCodeDto(commonCode);
+        } else {
+            throw new CustomException(ErrorCode.GROUP_NOT_FOUND);
+        }
     }
 
-    public CodeGroupDto createGroup(CodeGroupDto reqGroupDto) {
-        validateGroupName(reqGroupDto.getName());
-        validateDuplicateGroup(reqGroupDto);
-        CodeGroup codeGroup = reqGroupDto.toEntity();
+    public CodeGroupDto createGroup(CodeGroupDto reqCodeDto) {
+        validateDuplicateGroupName(reqCodeDto.getName());
+        CodeGroup codeGroup = reqCodeDto.toEntity();
         codeGroupRepository.save(codeGroup);
         return new CodeGroupDto(codeGroup);
     }
@@ -74,7 +90,7 @@ public class CommonCodeService {
             //todo 변경된 값으로 return 되는지 테스트
             return new CodeGroupDto(codeGroup.get());
         }
-        throw new IllegalArgumentException("Group not exist");
+        throw new CustomException(ErrorCode.GROUP_NOT_FOUND);
     }
 
     public CommonCodeDto updateCode(long id, CommonCodeDto reqCodeDto) {
@@ -84,12 +100,12 @@ public class CommonCodeService {
             commonCode.get().update(reqCodeDto);
             return new CommonCodeDto(commonCode.get());
         }
-        throw new IllegalArgumentException("Code not exist");
+        throw new CustomException(ErrorCode.CODE_NOT_FOUND);
     }
 
 
-    public void deleteCodesInGroup(String groupName) {
-        Optional<CodeGroup> codeGroup = codeGroupRepository.findByName(groupName);
+    public void deleteCodesInGroup(long groupId) {
+        Optional<CodeGroup> codeGroup = codeGroupRepository.findById(groupId);
         codeGroup.ifPresent(group -> commonCodeRepository.deleteAllByCodeGroupId(group.getId()));
     }
 
@@ -99,22 +115,23 @@ public class CommonCodeService {
 
     private void validateGroupName(String groupName) {
         if (!codeGroupRepository.existsByName(groupName)) {
-            throw new IllegalArgumentException("Invalid group name: " + groupName);
+            throw new CustomException(ErrorCode.GROUP_NOT_FOUND);
         }
     }
 
     private void validateDuplicateCode(CommonCodeDto reqCodeDto) {
-        if (commonCodeRepository.existsById(reqCodeDto.getId()) ||
-                commonCodeRepository.existsByCode(reqCodeDto.getCode()) ||
-                commonCodeRepository.existsByName(reqCodeDto.getName())) {
-            throw new IllegalArgumentException("Code already exists: " + reqCodeDto.getCode() + ", " + reqCodeDto.getName());
+        if (commonCodeRepository.existsByCode(reqCodeDto.getCode())) {
+            throw new CustomException(ErrorCode.CODE_ALREADY_EXIST);
+        }
+        if (commonCodeRepository.existsByName(reqCodeDto.getName())) {
+            throw new CustomException(ErrorCode.CODE_ALREADY_EXIST);
         }
     }
 
-    private void validateDuplicateGroup(CodeGroupDto reqGroupDto) {
-        if (codeGroupRepository.existsById(reqGroupDto.getId()) ||
-                codeGroupRepository.existsByName(reqGroupDto.getName())) {
-            throw new IllegalArgumentException("Group already exists: " + reqGroupDto.getName());
+    private void validateDuplicateGroupName(String groupName) {
+        if (codeGroupRepository.existsByName(groupName)) {
+            throw new CustomException(ErrorCode.GROUP_NAME_ALREADY_EXIST);
         }
     }
+
 }
