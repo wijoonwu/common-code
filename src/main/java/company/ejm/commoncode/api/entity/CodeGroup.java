@@ -1,5 +1,6 @@
 package company.ejm.commoncode.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Getter @ToString
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -21,5 +22,9 @@ public class CodeGroup {
 
     public void updateName(String groupName) {
         this.name = groupName;
+    }
+
+    public void addCommonCode(CommonCode commonCode) {
+        this.commonCodeList.add(commonCode);
     }
 }

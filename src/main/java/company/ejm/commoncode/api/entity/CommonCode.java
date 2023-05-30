@@ -5,7 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Getter @ToString
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -21,13 +21,10 @@ public class CommonCode {
     @JoinColumn(name = "code_group_id")
     private CodeGroup codeGroup;
 
-    public void update(CommonCodeDto reqCodeDto) {
+    public void update(CommonCodeDto reqCodeDto, CodeGroup codeGroup) {
         this.code = reqCodeDto.getCode();
         this.name = reqCodeDto.getName();
-        this.codeGroup = reqCodeDto.getGroupDto().toEntity();
-    }
-
-    public void setCodeGroup(CodeGroup codeGroup) {
         this.codeGroup = codeGroup;
     }
+
 }
