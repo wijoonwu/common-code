@@ -12,8 +12,9 @@ import javax.persistence.*;
 @Entity
 public class CommonCode {
 
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     private String code;
     private String name;
 
@@ -26,5 +27,4 @@ public class CommonCode {
         this.name = reqCodeDto.getName();
         this.codeGroup = codeGroup;
     }
-
 }
