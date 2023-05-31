@@ -1,13 +1,13 @@
 package company.ejm.commoncode.api.exception;
 
 import company.ejm.commoncode.api.dto.ErrorDto;
-import company.ejm.commoncode.api.properties.ErrorCode;
+import company.ejm.commoncode.api.model.ErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import static company.ejm.commoncode.api.properties.ErrorCode.INTERNAL_SERVER_ERROR;
+import static company.ejm.commoncode.api.model.ErrorCode.INTERNAL_SERVER_ERROR;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 

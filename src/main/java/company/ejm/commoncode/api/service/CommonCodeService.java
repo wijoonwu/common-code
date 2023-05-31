@@ -5,7 +5,7 @@ import company.ejm.commoncode.api.dto.CommonCodeDto;
 import company.ejm.commoncode.api.entity.CodeGroup;
 import company.ejm.commoncode.api.entity.CommonCode;
 import company.ejm.commoncode.api.exception.CustomException;
-import company.ejm.commoncode.api.properties.ErrorCode;
+import company.ejm.commoncode.api.model.ErrorCode;
 import company.ejm.commoncode.api.repository.CodeGroupRepository;
 import company.ejm.commoncode.api.repository.CommonCodeRepository;
 import lombok.RequiredArgsConstructor;

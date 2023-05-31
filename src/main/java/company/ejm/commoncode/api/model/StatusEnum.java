@@ -1,4 +1,4 @@
-package company.ejm.commoncode.api.properties;
+package company.ejm.commoncode.api.model;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

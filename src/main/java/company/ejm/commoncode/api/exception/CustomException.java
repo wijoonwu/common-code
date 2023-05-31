@@ -1,6 +1,6 @@
 package company.ejm.commoncode.api.exception;
 
-import company.ejm.commoncode.api.properties.ErrorCode;
+import company.ejm.commoncode.api.model.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
