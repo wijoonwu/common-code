@@ -1,6 +1,5 @@
 package company.ejm.commoncode.api.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -18,10 +17,15 @@ public class CodeGroup {
     private long id;
     private String name;
     @OneToMany(mappedBy = "codeGroup")
+    @Builder.Default
     private List<CommonCode> commonCodeList = new ArrayList<>();
 
     public void updateName(String groupName) {
         this.name = groupName;
+    }
+
+    public void addCommonCode(CommonCode commonCode) {
+        this.commonCodeList.add(commonCode);
     }
 
 }
