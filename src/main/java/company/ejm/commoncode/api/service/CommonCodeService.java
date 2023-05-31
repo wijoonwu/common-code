@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -63,15 +64,13 @@ public class CommonCodeService {
 
     @Transactional(readOnly = true)
     public List<CommonCodeDto> getCodesByGroupName(String groupName) {
-        List<CommonCode> commonCodeList = commonCodeRepository.findByCodeGroupName(groupName);
-
-        if (commonCodeList.isEmpty()){
-            throw new CustomException(ErrorCode.GROUP_NOT_FOUND);
-        }
-
-        return commonCodeList.stream()
-                .map(CommonCodeDto::new)
-                .collect(Collectors.toList());
+        Optional<CodeGroup> codeGroup = codeGroupRepository.findByName(groupName);
+        if (codeGroup.isPresent()) {
+            List<CommonCode> commonCodeList = codeGroup.get().getCommonCodeList();
+            return commonCodeList.stream()
+                    .map(CommonCodeDto::new)
+                    .collect(Collectors.toList());
+        } throw new CustomException(ErrorCode.GROUP_NOT_FOUND);
     }
 
     public CodeGroupDto updateGroupName(long groupId, String groupName) {
