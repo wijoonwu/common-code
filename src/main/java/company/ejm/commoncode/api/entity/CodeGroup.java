@@ -24,7 +24,4 @@ public class CodeGroup {
         this.name = groupName;
     }
 
-    public void addCommonCode(CommonCode commonCode) {
-        this.commonCodeList.add(commonCode);
-    }
 }
