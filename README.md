@@ -11,6 +11,35 @@
 - Gradle `7.6.1`
 - Spring-boot `2.7.12`
 - H2 Database
+- JPA
+
+## 디렉터리 구조
+```bash
+└── src/main/java/company/ejm/commoncode/api
+    ├── controller
+    │   └── CommonCodeController.java
+    ├── dto
+    │   ├── CodeGroupDto.java
+    │   ├── CommonCodeDto.java
+    │   └── ErrorDto.java
+    ├── entity
+    │   ├── CodeGroup.java
+    │   └── CommonCode.java
+    ├── exception
+    │   ├── CustomException.java
+    │   └── GlobalExceptionHandler.java
+    ├── model
+    │   ├── ErrorCode.java
+    │   ├── Message.java
+    │   └── StatusEnum.java
+    ├── repository
+    │   ├── CodeGroupRepository.java
+    │   └── CommonCodeRepository.java
+    └── service
+        └── CommonCodeService.java
+
+```
+
 
 ## 프로젝트 설치
 
@@ -286,7 +315,7 @@ gradlew bootRun
 }
 ```
 
-### 코드 그룹 삭제
+### 코드 그룹 내 공통 코드 전체 삭제
 
 - Method: `DELETE`
 - Url: http://localhost:8080/api/common-codes/group/{groupId}
