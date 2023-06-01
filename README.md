@@ -13,6 +13,18 @@
 - H2 Database
 - JPA
 
+## DB 다이어그램
+~~~bash
++-----------------+      +------------------+
+|    CodeGroup    |      |    CommonCode    |
++-----------------+      +------------------+
+|       id        |      |        id        |
+|      name       |      |       code       |
++-----------------+      |       name       |
+                         |   code_group_id  |
+                         +------------------+
+~~~
+
 ## 디렉터리 구조
 ```bash
 └── src/main/java/company/ejm/commoncode/api
