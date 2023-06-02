@@ -1,5 +1,4 @@
-# EJM Company Common Code API
-#### 채용 포지션 : 백엔드 개발자 | 지원자 : 위준우
+# Common Code API
 
 ## 요구사항
 > 공통 코드는 한글 명과 코드 값으로 이루어져 있습니다.<br>
